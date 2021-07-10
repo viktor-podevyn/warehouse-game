@@ -1,8 +1,13 @@
 <?php
 
+namespace App\Service;
 
+use App\Model\Ingredients;
+use App\Model\Orders;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+
 
 class ApiClient
 {
@@ -15,13 +20,15 @@ class ApiClient
     private const VIEW_REQUEST = '?mode=view&key=';
     private const DO_TURN = '?mode=doturn&key=';
     private const ROBOTS_REQUEST = '?mode=robots&key=';
+    private Converter $converter;
 
     /**
      * ApiClient constructor.
      */
     public function __construct()
     {
-        $this->client = new GuzzleHttp\Client();
+        $this->client = new Client();
+        $this->converter = new Converter();
     }
 
     /**
@@ -70,29 +77,32 @@ class ApiClient
 
     /**
      * @throws GuzzleException
+     * @throws Exception
      */
-    public function getOrders(string $key): void
+    public function fetchOrders(string $key): Orders
     {
         $ordersArray = $this->getRequest(self::ORDER_REQUEST , $key);
-        var_dump($ordersArray[0]);
+        return $this->converter->arrayToOrders($ordersArray);
     }
 
     /**
      * @throws GuzzleException
+     * @throws Exception
      */
-    public function getRobots($key):void
+    public function fetchRobots($key): \App\Model\Robots
     {
         $robotArray = $this->getRequest(self::ROBOTS_REQUEST , $key);
-        var_dump($robotArray);
+        return $this->converter->arrayToRobots($robotArray);
     }
 
     /**
      * @throws GuzzleException
+     * @throws Exception
      */
-    public function getIngredients($key):void
+    public function getIngredients($key): Ingredients
     {
         $ingredientsArray = $this->getRequest(self::INGREDIENTS_REQUEST , $key);
-        var_dump($ingredientsArray);
+        return $this->converter->arrayToIngredients($ingredientsArray);
     }
 
     /**
